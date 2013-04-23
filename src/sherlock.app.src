@@ -1,0 +1,12 @@
+{application, sherlock,
+ [
+  {description, ""},
+  {vsn, "1"},
+  {registered, []},
+  {applications, [
+                  kernel,
+                  stdlib
+                 ]},
+  {mod, { sherlock_app, []}},
+  {env, []}
+ ]}.
