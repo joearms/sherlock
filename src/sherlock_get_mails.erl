@@ -34,7 +34,7 @@ parse_index(In, Out) ->
     Rows3 = [Url || [{[{<<"href">>,Url}],_}] <- lists:reverse(Rows2)],
     sherlock_lib:term2file(Rows3, Out),
     io:format("Written: ~s~n",[Out]),
-    Rows3.
+    io:format("~w files must be fetched~n",[length(Rows)]).
 
 findall(Path, Tree) ->
     L1 =findall(Tree, lists:reverse(Path), [], []),
@@ -60,13 +60,13 @@ findall(_,_,_,L) ->
 fetch_files(In, Cache) ->
     start_inets(),
     {ok, [Urls]} = file:consult(In),
-    io:format("Urls=~p~n",[Urls]),
+    %% io:format("Urls=~p~n",[Urls]),
     [fetch_data(I, Cache) || I <- Urls].
 
 fetch_data(I, Cache) ->
     S = binary_to_list(I),
     Out = filename:join([Cache,S]),
-    io:format("testing:~p~n",[Out]),
+    %% io:format("testing:~p~n",[Out]),
     case filelib:is_regular(Out) of
 	true ->
 	    io:format("~p is in the cache~n",[I]);
@@ -82,7 +82,7 @@ fetch_and_store(F, Out) ->
     io:format("written:~s~n",[Out]).
 
 %% Actually what we have done is build what is essentially
-%% a mico version of XPATH that works on the parse trees produced 
+%% a micro version of XPATH that works on the parse trees produced 
 %% my mochiweb_html. Our findall is an xpath query of the form
 %% "html/body/table/*"
 

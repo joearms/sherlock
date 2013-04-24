@@ -10,6 +10,12 @@
 %% test_build  builds the database (do once it's slow)
 %% test_search searches (fast)
 
+process_year(Year) ->
+    N = parse_mails(Year),
+    compute_tfidf(Year),
+    add_synthetic_keywords(Year),
+    N.
+
 test_build() ->
     get_index(),
     Years = find_mail_years(),
@@ -21,7 +27,7 @@ test_build() ->
 
 test_search() ->
     %% see LOG_test for the results
-    search_mails_regexps("2009", "*Armstrong*", "*JSON*", "*"),
+    search_mails_regexprs("2009", "*Armstrong*", "*JSON*", "*"),
     print_mail("2009", 946),
     find_mails_similar_to_file("2009", "./src/sherlock_tfidf.erl"),
     print_mail("2009", 7260),
@@ -42,8 +48,6 @@ remove_self(X, [X|T]) -> T;
 remove_self(X, [H|T]) -> [H|remove_self(X, T)]; 
 remove_self(_, [])    -> [].
     
-
-
 %% Given a File find the mail
 %% in Year that best matches the content of the file
  
@@ -107,7 +111,7 @@ pp(#post{id=Id,subject=S,date=D,from=W,body=B}) ->
     io:format("----~nID: ~w~nDate: ~s~nFrom: ~s~nSubject: ~s~n~s~n",
 	      [Id,D,W,S,B]).
 
-search_mails_regexps(Year, Person, Subject, RegExp) ->
+search_mails_regexprs(Year, Person, Subject, RegExp) ->
     %% Seach by Year, Then person, Subject, and RegExp
     File = filelib:wildcard(filename:join([sherlock_root(),"mails",
 					   Year,"mails.bin"])),
@@ -143,7 +147,6 @@ matches([], []) ->
     true.
 
 get_index() ->
-    io:format("get index~n Input: none~n Output:$(MAIL)/questions.term~n"),
     ensure_mail_root(),
     Index       = filename:join([sherlock_root(),"mails","questions.html"]),
     ParsedIndex = filename:join([sherlock_root(),"mails","questions.term"]),
@@ -162,7 +165,8 @@ parse_mails(Year) ->
     io:format("Written: ~s~n",[Out]),
     Len  = length(L),
     io:format("Year: ~s #entries = ~p size = ~6.2f Megabytes "
-	      "average =~6.2f bytes/entry~n",[Year, Len, Size/1000000, Size/Len]).
+	      "average =~6.2f bytes/entry~n",[Year, Len, Size/1000000, Size/Len]),
+    Len.
 
 parse_compressed_mails([File|T], N, L) ->
     {N1, L1} = sherlock_parse_mails:parse_compressed_mail_file(File, N, L),
@@ -227,9 +231,18 @@ loop1([], Idf) ->
 make_stuff_to_index(#post{subject=S,body=B,from=F}) ->
     <<S/binary," ",B/binary," ", F/binary>>.
 
+
 ensure_mail_root() ->
-    file:make_dir(filename:join([sherlock_root(),"mails"])),
-    file:make_dir(filename:join([sherlock_root(),"mails","cache"])).
+    Root = sherlock_root(),
+    case filelib:is_dir(Root) of
+	true ->
+	    sherlock_already_exists;
+	false ->
+	    ok = file:make_dir(Root),
+	    ok = file:make_dir(filename:join([Root,"mails"])),
+	    ok = file:make_dir(filename:join([Root,"mails","cache"])),
+	    sherlock_cache_created
+    end.
 
 sherlock_root() ->
     filename:join([os:getenv("HOME"),".sherlock"]).
@@ -259,7 +272,8 @@ add_synthetic_keywords(Year) ->
     L1  = [add_keywords(I, Tab) || I<- L],
     file:write_file(Out, term_to_binary(L1, [compressed])),
     io:format("Written binary store:~s~n",[Out]),
-    sherlock_lib:term2file(L1, List),
+    %% Print the first 25 mails
+    sherlock_lib:term2file(string:substr(L1,1,25), List),
     io:format("Written listing:~p~n",[List]).
 
 add_keywords(Post, Tab)->
@@ -281,3 +295,10 @@ compile_awk_reg(Reg) ->
     Reg1 = xmerl_regexp:sh_to_awk(Reg),
     {ok, Reg2} = re:compile(Reg1, [caseless,unicode,dotall]),
     Reg2.
+
+fetch_all_mails() ->
+    Index = filename:join([sherlock_root(),"mails", "questions.term"]),
+    Cache = filename:join([sherlock_root(),"mails","cache"]),
+    sherlock_get_mails:fetch_files(Index, Cache).
+
+    
