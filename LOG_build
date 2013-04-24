@@ -26,7 +26,7 @@ Eshell V5.9  (abort with ^G)
 1> Written binary store:/Users/joe/.sherlock/mails/2009/mails.bin
 1> Written listing:"/Users/joe/.sherlock/mails/2009/mails.list"
 1> 946:  UBF and JSON Protocols
-1> Query took:24 ms #results=1
+1> Query took:22 ms #results=1
 1> ----
 ID: 946
 Date: Sun, 15 Feb 2009 12:39:10 +0100
@@ -48,6 +48,7 @@ http://armstrongonsoftware.blogspot.com/2009/02/json-protocols-part-1.html
 /Joe Armstrong
 
 
+1> ** searching for a mail in 2009 similar to the content of file:./src/sherlock_tfidf.erl
 1> Searching for=[<<"idf">>,<<"word">>,<<"remove">>,<<"words">>,<<"tab">>,
                <<"duplicates">>,<<"ets">>,<<"keywords">>,<<"bin">>,<<"skip">>,
                <<"file">>,<<"index">>,<<"binary">>,<<"frequency">>,<<"dict">>]
@@ -84,5 +85,68 @@ Thank you!
 
 Regards,
   Johann
+
+1> Searching for a mail in 2009 similar to mail number 7260 in 2009
+1> Searching for=[<<"indexer">>,<<"analysis">>,<<"couchdb">>,<<"wortd">>,
+               <<"idf">>,<<"knuthellan.com">>,<<"frequncy">>,<<"corpus">>,
+               <<"dbm">>,<<"discoproject.org">>,<<"disco">>]
+1> 7260 : 0.84 Word Frequency Analysis
+1> 7252 : 0.84 Word Frequency Analysis
+1> 6844 : 0.21 couchdb in Karmic Koala
+1> 6848 : 0.21 couchdb in Karmic Koala
+1> 6847 : 0.20 couchdb in Karmic Koala
+1> 6849 : 0.19 couchdb in Karmic Koala
+1> 7264 : 0.17 Re: erlang search engine library?
+1> 6843 : 0.16 couchdb in Karmic Koala
+1> 2895 : 0.15 CouchDB integration
+1> 69 : 0.14 dialyzer fails when using packages and -r
+1> ----
+ID: 6844
+Date: Thu, 19 Nov 2009 17:26:46 +0300
+From: Dmitry Belyaev
+Subject: couchdb in Karmic Koala
+1) ps -A | grep couchdb
+   or
+2) /etc/init.d/couchdb {start|stop|status}
+3) sure you can if you database name will not interfere any other
+
+As I remember couchdb package depends on erlang. So it may be installed
+as always in /usr/bin and /usr/lib/erlang
+
+On Thu, 2009-11-19 at 15:06 +0100, Joe Armstrong wrote:
+> I just upgraded my ubuntu to Karmic Koala
+> 
+> couchdb seems to have installed itself and a few other things (horray
+> - well done ...)
+> 
+> $ pwd
+> /usr/lib/couchdb/erlang/lib
+> $ ls
+> couch-0.10.0  erlang-oauth  etap  ibrowse-1.5.2  mochiweb-r97
+> 
+> I think couchdb is running on my machine.
+> 
+> A few questions:
+> 
+> 1) Is couchdb running on my machine and how can I confirm this?
+> 2) How is couchdb started and stopped?
+> 3) Can I use couchdb for my own applications of is it reserved for system use?
+> 4) Where is Erlang hidden away?
+> 5) Can I use the hidden Erlang for my own applications
+> 6) Can I distribute my own Erlang applications that make use of the
+>     Erlang that has (apparently) been installed in Karmic Koala
+> 
+> Having Erlang on all Karmic Koala machines could lead to many exciting
+> things :-)
+> 
+> /Joe
+> 
+> ________________________________________________________________
+> erlang-questions mailing list. See http://www.erlang.org/faq.html
+> erlang-questions (at) erlang.org
+> 
+> 
+
+
 
 1> 

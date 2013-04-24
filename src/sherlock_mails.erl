@@ -7,26 +7,65 @@
 
 -include("./sherlock.hrl").
 
-test() ->
-    %% this is a cmplete run of all the routines that are called
+%% test_build  builds the database (do once it's slow)
+%% test_search searches (fast)
+
+test_build() ->
     get_index(),
     Years = find_mail_years(),
     io:format("Years = ~p~n", [Years]),
     parse_mails("2009"),
     compute_tfidf("2009"),
     add_synthetic_keywords("2009"),
-    [N] = search_mails_regexps("2009", "*Armstrong*", "*JSON*", "*"),
-    show_mail("2009", N),
-    [H|_] = find_similar_mails("2009", "./src/sherlock_tfidf.erl"),
-    show_mail("2009", H).
+    test_search().
+
+test_search() ->
+    %% see LOG_test for the results
+    search_mails_regexps("2009", "*Armstrong*", "*JSON*", "*"),
+    print_mail("2009", 946),
+    find_mails_similar_to_file("2009", "./src/sherlock_tfidf.erl"),
+    print_mail("2009", 7260),
+    find_mails_similar_to_mail("2009", "2009", 7260),
+    print_mail("2009", 6844).
+
+find_mails_similar_to_mail(SearchYear, MailYear, MailId) ->
+    io:format("Searching for a mail in ~s similar to mail number ~w in ~s~n",
+	      [SearchYear, MailId, MailYear]),
+    Post = fetch_mail_with_id(MailYear, MailId),
+    Content = Post#post.body,
+    L = find_mails_similar_to_binary(SearchYear, Content),
+    %% we might find ourself in the list of matched mails
+    %% so remove it
+    remove_self(MailId, L).
+
+remove_self(X, [X|T]) -> T;
+remove_self(X, [H|T]) -> [H|remove_self(X, T)]; 
+remove_self(_, [])    -> [].
+    
+
 
 %% Given a File find the mail
 %% in Year that best matches the content of the file
  
-find_similar_mails(Year, File) ->
+find_mails_similar_to_file(Year, File) ->
+    io:format("** searching for a mail in ~s similar to the content of file:~s~n",
+	      [Year, File]),
     Idf = filename:join([sherlock_root(),"mails",Year,"idf.ets"]),
     {ok, Tab} = ets:file2tab(Idf),
-    Ks = sherlock_tfidf:keywords_in_file(File, Tab),
+    case file:read_file(File) of
+	{ok, Bin} ->
+	    find_mails_similar_to_binary(Year, Tab, Bin);
+	_ ->
+	    []
+    end.
+
+find_mails_similar_to_binary(Year, Bin) ->
+    Idf = filename:join([sherlock_root(),"mails",Year,"idf.ets"]),
+    {ok, Tab} = ets:file2tab(Idf),
+    find_mails_similar_to_binary(Year, Tab, Bin).
+
+find_mails_similar_to_binary(Year, Tab, Bin) ->
+    Ks = sherlock_tfidf:keywords_in_binary(Bin, Tab),
     Keywords = [K || {{_,K},_} <- Ks],
     Scores = [{Index,Score} || {{Index,_},Score} <- Ks],
     io:format("Searching for=~p~n",[Keywords]),
@@ -54,12 +93,15 @@ find_best_match(K1, [#post{id=Id,scores=K2,subject=S}|T], Best) ->
 find_best_match(_, [], Best) ->
     sherlock_best:final(Best).
 
-show_mail(Year, Id) ->
+print_mail(Year, Id) ->
+    Post = fetch_mail_with_id(Year, Id),
+    pp(Post).
+
+fetch_mail_with_id(Year, Id) ->
     File = filelib:wildcard(filename:join([sherlock_root(),"mails",
 					   Year,"mails.bin"])),
     L = sherlock_lib:file2term(File),
-    Post = lists:nth(Id, L),
-    pp(Post).
+    lists:nth(Id, L).
 
 pp(#post{id=Id,subject=S,date=D,from=W,body=B}) ->
     io:format("----~nID: ~w~nDate: ~s~nFrom: ~s~nSubject: ~s~n~s~n",
