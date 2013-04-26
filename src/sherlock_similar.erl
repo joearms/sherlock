@@ -3,7 +3,7 @@
 %% Copyright (c) 2009 Whoomph Software AB (joearms@gmail.com). All rights reserved.
 %% For license read the top level LICENSE file
 
--export([cosine_similarity/2]).
+-export([cosine_similarity/2, cross/2, norm/1]).
 
 %%----------------------------------------------------------------------
 %% compute the consine similarity of two vectors

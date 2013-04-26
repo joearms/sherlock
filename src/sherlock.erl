@@ -42,5 +42,13 @@ find_mails_similar_to_mail(SearchYear, MailYear, MailId) ->
 find_mails_similar_to_file(Year, File) ->
     sherlock_mails:find_mails_similar_to_file(Year, File).
 
-print_keyword_vector(Year, Id) ->
-    sherlock_mails:print_keyword_vector(Year, Id).
+get_keyword_vector(Year, Id) ->
+    sherlock_mails:get_keyword_vector(Year, Id).
+
+cosine_similarity(Year, Id1, Id2) ->
+    K1 = sherlock_mails:get_keyword_vector(Year, Id1),
+    K2 = sherlock_mails:get_keyword_vector(Year, Id2),
+    Sim = sherlock_similar:cosine_similarity(K1, K2),
+    {K1, K2, Sim}.
+
+

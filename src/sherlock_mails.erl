@@ -97,7 +97,7 @@ find_best_match(K1, [#post{id=Id,scores=K2,subject=S}|T], Best) ->
 find_best_match(_, [], Best) ->
     sherlock_best:final(Best).
 
-print_keyword_vector(Year, Id) ->
+get_keyword_vector(Year, Id) ->
     Post = fetch_mail_with_id(Year, Id),
     #post{keywords=K,scores=Scores} = Post,
     %% the keywords are stored in a comma separted binary
