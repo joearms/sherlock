@@ -41,3 +41,6 @@ find_mails_similar_to_mail(SearchYear, MailYear, MailId) ->
 
 find_mails_similar_to_file(Year, File) ->
     sherlock_mails:find_mails_similar_to_file(Year, File).
+
+print_keyword_vector(Year, Id) ->
+    sherlock_mails:print_keyword_vector(Year, Id).

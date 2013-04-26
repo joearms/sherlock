@@ -97,6 +97,21 @@ find_best_match(K1, [#post{id=Id,scores=K2,subject=S}|T], Best) ->
 find_best_match(_, [], Best) ->
     sherlock_best:final(Best).
 
+print_keyword_vector(Year, Id) ->
+    Post = fetch_mail_with_id(Year, Id),
+    #post{keywords=K,scores=Scores} = Post,
+    %% the keywords are stored in a comma separted binary
+    %% so we can search them with a regexp
+    %% If we want to see them we have to
+    %% merge them with the scores list
+    Keywords = string:tokens(binary_to_list(K),","),
+    merge(Keywords,Scores).
+
+merge([Keyword|T1],[{_Inex,Significance}|T2]) ->
+    [{Keyword, Significance}|merge(T1, T2)];
+merge([], []) ->
+    [].
+
 print_mail(Year, Id) ->
     Post = fetch_mail_with_id(Year, Id),
     pp(Post).
